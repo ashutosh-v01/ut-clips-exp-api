@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="call_utGraphql_Flow" doc:id="650b1571-b48f-492a-b9c2-aea63515356d" >
+		<logger level="INFO" doc:name="Entry Logger" doc:id="d8b4cb77-0f57-4cb6-bb77-b75bd9c822db" message="#[payload]"/>
+		<!-- <ee:transform doc:name="Coverting to String" doc:id="973f1238-8642-4a84-9f31-16f71c8abae7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+-&#45;&#45;
+write(("query":  payload.^raw!), 'application/json') as String]]></ee:set-payload>
+			</ee:message>
+		</ee:transform> -->
+		<ee:transform doc:name="Transform Message" doc:id="c9f94bbe-df0f-4cb2-ac9c-ba8b72282544" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+if(p("env") == "prod")
+readUrl('classpath://transform/prodgraphql.dwl', 'text/plain')
+else
+readUrl('classpath://transform/nonprodgraphql.dwl', 'text/plain')]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="uniqueUUID" ><![CDATA[%dw 2.0
+output application/json
+---
+attributes.queryParams.uuid!]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:dynamic-evaluate doc:name="Dynamic Evaluate" doc:id="b53c399b-d74b-495e-a03c-938fbd8b1559" expression="#[payload]"/>
+		<until-successful maxRetries="3" doc:name="Until Successful" doc:id="23cfab60-dacd-4200-a434-4cdf0054c429" >
+			<http:request method="POST" doc:name="UT_graphql_Call" doc:id="f7e47a29-7d83-483b-a211-dc65d1897315" config-ref="HTTP_Request_configuration" path="${secure::UT.order.path}" sendCorrelationId="AUTO" target="UtResp">
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	"Accept" : "application/json",
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+		</http:request>
+		</until-successful>
+		<choice doc:name="Choice" doc:id="fdc226b9-3142-449b-a9d5-c5aaa71eb88b" >
+			<when expression="#[sizeOf(vars.UtResp) &gt; 0]">
+				<until-successful maxRetries="3" doc:name="Until Successful" doc:id="95c7551e-8d8c-4aff-b2f5-4e165d6ef67f" >
+					<http:request method="POST" doc:name="Event Tracking Request" doc:id="6ba232d4-6ff0-497c-96aa-168b38053ada" config-ref="HTTP_Request_configuration_Event" path="{secure::UT.event.path}" sendCorrelationId="AUTO">
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	"Accept" : "application/json",
+	"Content-Type" : "application/x-www-form-urlencoded"
+}]]]></http:headers>
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	"event" : vars.uniqueUUID,
+	"app_name" : "Value"
+}]]]></http:query-params>
+		</http:request>
+				</until-successful>
+			</when>
+			<otherwise >
+				<raise-error doc:name="Raise error" doc:id="f1814848-b51b-4eeb-9093-4e3e76511eb3" type="CUSTOM:NOT_FOUND" description="#['No Records for the given UUID']"/>
+			</otherwise>
+		</choice>
+		<set-payload value="#[vars.UtResp]" doc:name="Set Payload" doc:id="09491b71-6518-4a69-b862-60effda2d332" />
+		<logger level="INFO" doc:name="Exit Logger" doc:id="569adf6f-4306-4951-9802-3386e331edf4" message="Got the respone from UT order API"/>
+		<logger level="DEBUG" doc:name="UT Response" doc:id="c7d0b89a-53df-4b16-b919-9e76ff1eb0d6" message="#[payload]"/>
+	</sub-flow>
+</mule>

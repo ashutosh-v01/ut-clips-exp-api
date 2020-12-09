@@ -1,0 +1,32 @@
+#%RAML 1.0
+title: ut-clips-exp-api
+description: Experience API for working with UT graphql clips
+version: v1
+mediaType: application/json
+
+uses: 
+  GlobalResources: global-resources/jira-global-resources.raml
+
+#securedBy: [ GlobalResources.BasicAuth ]
+ 
+/clips:
+      get:
+          description: Get clip information which is created in User Testing Orde platform.
+          headers:
+            Content-Type:
+              description: Need to pass the Content-Type
+              required: true
+          queryParameters:
+            uuid:
+              displayName: The Unique id for the clip to be fetch
+              type: string
+              required: true
+              example: 9d7910f0-1f40-4877-a65b-1b3f479fd115
+          is: [ GlobalResources.Trackable, GlobalResources.ErrorResponses ]
+          responses:
+           200:
+              body:
+               application/json:
+                      example:
+                       !include examples/get-clips-response.json
+                      

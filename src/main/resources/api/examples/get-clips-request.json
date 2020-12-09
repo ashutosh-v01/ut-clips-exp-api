@@ -1,0 +1,1 @@
+{"query": "{getClipByUuid(uuid: \"9d7910f0-1f40-4877-a65b-1b3f479fd115\") {\r\n    __typename\r\n    createdAt\r\n    creatorName\r\n    embeddableUrl\r\n    note\r\n    participant {\r\n      __typename\r\n      age\r\n      country\r\n      gender\r\n      income\r\n      name\r\n      state\r\n    }\r\n    study {\r\n      __typename\r\n      title\r\n    }\r\n  }\r\n}"}

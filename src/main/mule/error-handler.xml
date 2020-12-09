@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<error-handler name="global_error_handler" doc:id="421dddb1-9a5d-43c8-a1a0-3a5d547b1eda">
+	<on-error-propagate type="APIKIT:BAD_REQUEST,HTTP:BAD_REQUEST" enableNotifications="true" logException="true">
+                <set-variable value="BAD_REQUEST" doc:name="errorCode" doc:id="10ab882b-4c7e-43ac-967c-a3af45c0d1c2" variableName="errorCode"/>
+			<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+					<ee:set-payload resource="transform/error.dwl" />
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[400]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND,CUSTOM:NOT_FOUND" enableNotifications="true" logException="true">
+                <set-variable value="NOT_FOUND" doc:name="errorCode" doc:id="4d0e8e3e-1498-4641-994e-accf1257c247" variableName="errorCode"/>
+			<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+					<ee:set-payload resource="transform/error.dwl" />
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[404]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <set-variable value="METHOD_NOT_ALLOWED" doc:name="errorCode" doc:id="850d0799-6bf3-4b24-b859-31a2fdf278b0" variableName="errorCode"/>
+			<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+					<ee:set-payload resource="transform/error.dwl" />
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[405]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <set-variable value="NOT_ACCEPTABLE" doc:name="errorCode" doc:id="d9986b03-1d28-4518-8baf-8c2e35e91fd6" variableName="errorCode"/>
+			<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+					<ee:set-payload resource="transform/error.dwl" />
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[406]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <set-variable value="UNSUPPORTED_MEDIA_TYPE" doc:name="errorCode" doc:id="ea5d3320-09aa-48ab-9f03-5eefb85c124d" variableName="errorCode"/>
+			<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="d66bb527-41dd-481a-a3a2-bd7782f23e94">
+                    <ee:message>
+					<ee:set-payload resource="transform/error.dwl" />
+                    </ee:message>
+                    <ee:variables>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <set-variable value="NOT_IMPLEMENTED" doc:name="errorCode" doc:id="08db969a-fd2d-4046-b793-42319b6f5a16" variableName="errorCode"/>
+			<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+					<ee:set-payload resource="transform/error.dwl" />
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[501]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="41d1c367-44e1-41ba-b9a4-32a5c8fd58a4" type="ANY">
+			<set-variable value="INTERNAL_SERVER_ERROR" doc:name="errorCode" doc:id="db9fae6f-b766-474b-b05a-ad7ea01eeb17" variableName="errorCode"/>
+			<ee:transform doc:name="Transform Message" doc:id="0b4fa02b-6ac3-4e98-bfe3-40059f5aad76" >
+				<ee:message >
+					<ee:set-payload resource="transform/error.dwl" />
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+            </error-handler>
+</mule>

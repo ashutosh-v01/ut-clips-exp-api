@@ -1,0 +1,16 @@
+{
+    "data": {
+        "getClipByUuid": {
+            "__typename": "Clip",
+            "createdAt": "2020-11-17T14:18:44-08:00",
+            "creatorName": "Jonathan Thom",
+            "embeddableUrl": "https://jira-mulesoft.qa.usertesting.com/c/9d7910f0-1f40-4877-a65b-1b3f479fd115?iframe_embed=true&access_disabled=false&access_playback_speed=false&access_sidebar=false&access_fullscreen=false&access_share_options=true&access_player_overlay=false&access_report_problem=false&access_shortcuts=false&display_header=false",
+            "note": "November 17, 2020 - 2:18 pm",
+            "participant": null,
+            "study": {
+                "__typename": "Study",
+                "title": "External Upload Session"
+            }
+        }
+    }
+}
