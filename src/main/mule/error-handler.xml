@@ -80,4 +80,151 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 			</ee:transform>
 		</on-error-propagate>
             </error-handler>
+            
+            <error-handler name="common-global-error-handler"
+		doc:id="37801768-12b7-489b-99b4-0667ba2eb05f">
+
+		<on-error-continue enableNotifications="true"
+			logException="true"
+			doc:name="On Data Error Continue - DataQualityException - Validation"
+			doc:id="426656e6-d05d-40f8-9c19-e2fdca6ee6f1"
+			type="VALIDATION:NOT_ELAPSED_TIME, VALIDATION:INVALID_EMAIL, VALIDATION:NOT_EMPTY_COLLECTION, VALIDATION:INVALID_BOOLEAN, VALIDATION:INVALID_IP, VALIDATION:REJECTED_IP, VALIDATION:BLANK_STRING, VALIDATION:ELAPSED_TIME, VALIDATION:EMPTY_COLLECTION, VALIDATION:NULL, VALIDATION:NOT_NULL, VALIDATION:INVALID_NUMBER, VALIDATION:INVALID_TIME,  VALIDATION:MISMATCH, VALIDATION:INVALID_SIZE, VALIDATION:MULTIPLE">
+			<logger level="INFO" doc:name="Logger" doc:id="fb045eb1-5540-4757-ba65-10eea077cd0a" message='#["Logging: On Data Error Continue - DataQualityException - Validation" ++ (error.description default "") ++ " correlationId : " ++ correlationId]'/>
+			<ee:transform doc:name="Transform Message"
+				doc:id="c26642d2-f0ba-4188-a335-28b7e69a2225">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": error.description
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-variable value="400" doc:name="Set Variable"
+				doc:id="178956b0-c033-4655-b876-87a66336d5cc"
+				variableName="httpStatus" />
+		
+</on-error-continue>
+		<on-error-continue enableNotifications="true"
+			logException="true"
+			doc:name="On Data Error Continue - SchemaValidationException"
+			doc:id="3b32d8e7-97fd-417f-a16a-6695cc2909ef"
+			type="JSON:INVALID_INPUT_JSON, JSON:SCHEMA_NOT_HONOURED">
+			<logger level="INFO" doc:name="Logger" doc:id="317dfb92-68cb-4e4a-9d60-886a054a4c16" message='#["Logging: On Data Error Continue - SchemaValidationException" ++ (error.description default "") ++ " correlationId : " ++ correlationId]'/>
+			<ee:transform doc:name="Transform Message"
+				doc:id="97585bd0-80a6-4495-9122-29b3a02c8da4">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": error.description
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-variable value="400" doc:name="Set Variable"
+				doc:id="08da521f-0887-4f4e-8d55-e94baa270d94"
+				variableName="httpStatus" />
+		</on-error-continue>
+		<on-error-continue enableNotifications="true"
+			logException="true" doc:name="On Error Continue"
+			doc:id="11603b19-b3aa-4c72-b9cf-393e271ff1d0"
+			type="APP:COMMON_DATA_ERROR">
+			<logger level="INFO" doc:name="Logger" doc:id="e09075c6-173b-4996-b8d9-981179556fcc" message='#["Logging: On Data Error Continue - APP:COMMON_DATA_ERROR" ++ (error.description default "") ++ " correlationId : " ++ correlationId]'/>
+			<ee:transform doc:name="Transform Message"
+				doc:id="7c8e76e2-e9c5-4e4e-b1c4-0f4d9352cc1d">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": error.description
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-variable value="400" doc:name="Set Variable"
+				doc:id="f34cae2f-cb45-4a6c-a884-bc8c4684d11f"
+				variableName="httpStatus" />
+
+		</on-error-continue>
+		<on-error-propagate enableNotifications="true"
+			logException="true" doc:name="On Error Propagate"
+			doc:id="e52e5000-a96b-4175-ad9d-0adc89e37708"
+			type="APP:COMMON_TECHNICAL_ERROR">
+			<logger level="INFO" doc:name="Logger" doc:id="765653e8-3c46-4774-b7a2-5706e3d86b7a" message='#["Logging: On Data Error Propagate - APP:COMMON_TECHNICAL_ERROR" ++ (error.description default "") ++ " correlationId : " ++ correlationId]'/>
+			<ee:transform doc:name="Transform Message"
+				doc:id="b1ff7ff6-4167-43fa-9dca-104454a7d636">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": error.description
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-variable value="500" doc:name="Set Variable"
+				doc:id="7b099217-e053-4aff-9f1c-2e33108cad0c"
+				variableName="httpStatus" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true"
+			logException="true" doc:name="On Technical Error Propagate Mule Expression"
+			doc:id="9f21e269-0ff6-4299-ac1a-2791be0507ae" type="MULE:EXPRESSION">
+			<logger level="INFO" doc:name="Logger" doc:id="63b078e7-4146-4605-bf49-e4a707552796" message='#["Logging: On Technical Error Propagate ANY" ++ (error.description default "") ++ " correlationId : " ++ correlationId]'/>
+			<ee:transform doc:name="Transform Message"
+				doc:id="02128a93-d68d-4301-aeb0-63175ea987bf">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "Error in integration, please contact Support Team."
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-variable value="400" doc:name="Set Variable"
+				doc:id="71b7bfce-8aea-484f-87c5-cca30b0c9cd8"
+				variableName="httpStatus" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true"
+			logException="true" doc:name="On Technical Error Propagate APIKIT:BAD_REQUEST"
+			doc:id="b841ff15-e040-4899-8e02-f1e0abefd801" type="APIKIT:BAD_REQUEST">
+			<logger level="INFO" doc:name="Logger" doc:id="1ce69cf3-a6eb-4e38-a482-41e7efd4a963" message='#["Logging: On Technical Error Propagate ANY" ++ (error.description default "") ++ " correlationId : " ++ correlationId]'/>
+			<ee:transform doc:name="Transform Message"
+				doc:id="ac43ee03-316e-4a20-9117-7c046f8e3437">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": error.description
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-variable value="400" doc:name="Set Variable"
+				doc:id="0935fd21-dec3-4021-bb43-1c388a9f35a7"
+				variableName="httpStatus" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true"
+			logException="true" doc:name="On Technical Error Propagate ANY"
+			doc:id="d3c9406c-7d06-4a1a-a954-62e3b295d6af" type="ANY">
+			<logger level="INFO" doc:name="Logger" doc:id="390394c3-299f-430e-9ccf-604418495d27" message='#["Logging: On Technical Error Propagate MULE:ANY" ++ (error.description default "") ++ " correlationId : " ++ correlationId]'/>
+			<ee:transform doc:name="Transform Message"
+				doc:id="070b5a90-ed5a-41ed-95f1-902eb0447d30">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": error.description
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-variable value="400" doc:name="Set Variable"
+				doc:id="37e8bf94-d4fb-4a08-8912-02b4aa2ea2c3"
+				variableName="httpStatus" />
+		</on-error-propagate>
+
+	</error-handler>
 </mule>

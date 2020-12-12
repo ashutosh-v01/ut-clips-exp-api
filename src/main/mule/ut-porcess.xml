@@ -43,22 +43,30 @@ attributes.queryParams.uuid!]]></ee:set-variable>
 }]]]></http:headers>
 		</http:request>
 		</until-successful>
+		<ee:transform doc:name="Event Tracking Request" doc:id="883ba5af-2fdd-4781-92f4-5106287cb88e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "event": '${secure::UT.event.name}',
+    "properties": {
+        "_id": vars.uniqueUUID,
+        "name": '${secure::UT.event.name}'
+    }
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 		<choice doc:name="Choice" doc:id="fdc226b9-3142-449b-a9d5-c5aaa71eb88b" >
 			<when expression="#[sizeOf(vars.UtResp) &gt; 0]">
 				<until-successful maxRetries="3" doc:name="Until Successful" doc:id="95c7551e-8d8c-4aff-b2f5-4e165d6ef67f" >
-					<http:request method="POST" doc:name="Event Tracking Request" doc:id="6ba232d4-6ff0-497c-96aa-168b38053ada" config-ref="HTTP_Request_configuration_Event" path="{secure::UT.event.path}" sendCorrelationId="AUTO">
+					<http:request method="POST" doc:name="Event Tracking Request" doc:id="6ba232d4-6ff0-497c-96aa-168b38053ada" config-ref="HTTP_Request_configuration_Event" path="${secure::UT.event.path}" sendCorrelationId="AUTO">
 			<http:headers><![CDATA[#[output application/java
 ---
 {
 	"Accept" : "application/json",
-	"Content-Type" : "application/x-www-form-urlencoded"
+	"Content-Type" : "application/json"
 }]]]></http:headers>
-			<http:query-params><![CDATA[#[output application/java
----
-{
-	"event" : vars.uniqueUUID,
-	"app_name" : "Value"
-}]]]></http:query-params>
 		</http:request>
 				</until-successful>
 			</when>
