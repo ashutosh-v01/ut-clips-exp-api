@@ -60,7 +60,8 @@ output application/json
 		<choice doc:name="Choice" doc:id="fdc226b9-3142-449b-a9d5-c5aaa71eb88b" >
 			<when expression="#[sizeOf(vars.UtResp) &gt; 0]">
 				<until-successful maxRetries="3" doc:name="Until Successful" doc:id="95c7551e-8d8c-4aff-b2f5-4e165d6ef67f" >
-					<http:request method="POST" doc:name="Event Tracking Request" doc:id="6ba232d4-6ff0-497c-96aa-168b38053ada" config-ref="HTTP_Request_configuration_Event" path="${secure::UT.event.path}" sendCorrelationId="AUTO">
+					<try doc:name="Try" doc:id="53bd591d-6412-4112-8b84-ed4f253ae401" >
+						<http:request method="POST" doc:name="Event Tracking Request" doc:id="6ba232d4-6ff0-497c-96aa-168b38053ada" config-ref="HTTP_Request_configuration_Event" path="${secure::UT.event.path}" sendCorrelationId="AUTO">
 			<http:headers><![CDATA[#[output application/java
 ---
 {
@@ -68,6 +69,12 @@ output application/json
 	"Content-Type" : "application/json"
 }]]]></http:headers>
 		</http:request>
+						<error-handler>
+							<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="1b8de9c8-7b7d-4f52-a174-6a4c4504400b" >
+								<logger level="ERROR" doc:name="Event Tracking Error" doc:id="c63cd459-c397-434a-bab0-ba834c95e04c" message="Not able to access Event Tracking API"/>
+							</on-error-continue>
+						</error-handler>
+					</try>
 				</until-successful>
 			</when>
 			<otherwise >
