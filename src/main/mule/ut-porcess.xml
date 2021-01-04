@@ -7,7 +7,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/cloudhub http://www.mulesoft.org/schema/mule/cloudhub/current/mule-cloudhub.xsd">
 	<sub-flow name="call_utGraphql_Flow" doc:id="650b1571-b48f-492a-b9c2-aea63515356d" >
-		<logger level="INFO" doc:name="Entry Logger" doc:id="d8b4cb77-0f57-4cb6-bb77-b75bd9c822db" message="#[payload]"/>
+		<logger level="INFO" doc:name="Entry Logger" doc:id="d8b4cb77-0f57-4cb6-bb77-b75bd9c822db" message="Calling Order API with UUID: #[attributes.queryParams.uuid]"/>
 		<!-- <ee:transform doc:name="Coverting to String" doc:id="973f1238-8642-4a84-9f31-16f71c8abae7" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -47,8 +47,8 @@ attributes.queryParams.uuid!]]></ee:set-variable>
 		</until-successful>
 			<error-handler>
 				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="32e796e3-0474-4a45-b68d-e6d47762d999" >
-					<cloudhub:create-notification doc:name="Clip Error Notification" doc:id="ab38cdf9-6ceb-42e8-9fbe-a0bde7ba41fa" config-ref="CloudHub_Config" priority="ERROR" domain="#[ut-clips-exp-api-prod]">
-						<cloudhub:message ><![CDATA["Error occured in application"]]></cloudhub:message>
+					<cloudhub:create-notification doc:name="Clip Error Notification" doc:id="ab38cdf9-6ceb-42e8-9fbe-a0bde7ba41fa" config-ref="CloudHub_Config" priority="ERROR" domain="ut-clips-exp-api">
+						<cloudhub:message ><![CDATA[#["Error occured in application"]]]></cloudhub:message>
 					</cloudhub:create-notification>
 					<raise-error doc:name="Raise error" doc:id="5abc5008-0689-4ee1-8f73-85c06763e59f" type="CUSTOM:NOT_FOUND" description="#['No Records for the given UUID']"/>
 				</on-error-propagate>
@@ -90,7 +90,7 @@ output application/json
 				</until-successful>
 			</when>
 			<otherwise >
-				<cloudhub:create-notification doc:name="Event Error Notification" doc:id="8caffeb9-5992-4f9c-aa71-0989e91480d5" config-ref="CloudHub_Config" domain="#[ut-clips-exp-api-prod]" priority="ERROR">
+				<cloudhub:create-notification doc:name="Event Error Notification" doc:id="8caffeb9-5992-4f9c-aa71-0989e91480d5" config-ref="CloudHub_Config" domain="ut-clips-exp-api" priority="ERROR">
 									<cloudhub:message><![CDATA[#["Error occured in Event Tracking"]]]></cloudhub:message>
 								</cloudhub:create-notification>
 				<raise-error doc:name="Raise error" doc:id="f1814848-b51b-4eeb-9093-4e3e76511eb3" type="CUSTOM:NOT_FOUND" description="#['No Records for the given UUID']"/>

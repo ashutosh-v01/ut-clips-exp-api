@@ -17,7 +17,7 @@ http://www.mulesoft.org/schema/mule/cloudhub http://www.mulesoft.org/schema/mule
 		</http:listener-connection>
 	</http:listener-config>
 	<global-property doc:name="Global Property" doc:id="00055834-4cfa-4988-b28e-b28d3596fdf1" name="env" value="dev" />
-	<global-property doc:name="Global Property" doc:id="2b6e5644-1865-4e38-b3b7-5f6ebefa2df1" name="ut.encryption.key" value="1234567812345678" />
+	<global-property doc:name="Global Property" doc:id="2b6e5644-1865-4e38-b3b7-5f6ebefa2df1" name="ut.encryption.key" value="1234" />
 	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="a74087da-7948-4fc8-9155-94e85d2803b0" file="properties/env-app-${env}.properties" key="${ut.encryption.key}"/>
 	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="78d8fd6c-2f6a-43bc-8035-446dceb58a7d" >
 		<http:request-connection host="${secure::UT.order.host}" />
@@ -26,6 +26,6 @@ http://www.mulesoft.org/schema/mule/cloudhub http://www.mulesoft.org/schema/mule
 		<http:request-connection protocol="HTTPS" host="${secure::UT.event.host}" />
 	</http:request-config>
 	<cloudhub:config name="CloudHub_Config" doc:name="CloudHub Config" doc:id="2c30ca70-b96d-408a-a940-c938b932f906" >
-		<cloudhub:connection username="${secure::anypoint.userName}" password="${secure::anypoint.password}" environment="${secure::environment.id}" />
+		<cloudhub:connection username="${anypoint.userName}" password="${anypoint.password}" environment="${environment.id}" />
 	</cloudhub:config>
 </mule>
