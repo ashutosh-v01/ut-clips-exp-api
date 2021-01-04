@@ -12,7 +12,7 @@
     <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
+		<app.name>ut-clips-exp-api</app.name>
 		<app.runtime>4.3.0</app.runtime>
 		<mule.maven.plugin.version>3.3.5</mule.maven.plugin.version>
 	</properties>
@@ -30,6 +30,18 @@
 				<version>${mule.maven.plugin.version}</version>
 				<extensions>true</extensions>
 				<configuration>
+					<cloudHubDeployment>
+						<uri>https://anypoint.mulesoft.com</uri>
+						<muleVersion>${app.runtime}</muleVersion>
+						<username>${anypoint.userName}</username>
+						<password>${anypoint.password}</password>
+						<applicationName>${app.name}-avishwakarma</applicationName>
+						<environment>Sandbox</environment>
+						<workerType>MICRO</workerType>
+						<region>us-west-1</region>
+						<workers>2</workers>
+						<objectStoreV2>true</objectStoreV2>
+					</cloudHubDeployment>				
 				</configuration>
 			</plugin>
 		</plugins>
