@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:cloudhub="http://www.mulesoft.org/schema/mule/cloudhub" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/cloudhub http://www.mulesoft.org/schema/mule/cloudhub/current/mule-cloudhub.xsd">
 	<sub-flow name="call_utGraphql_Flow" doc:id="650b1571-b48f-492a-b9c2-aea63515356d" >
-		<logger level="INFO" doc:name="Entry Logger" doc:id="d8b4cb77-0f57-4cb6-bb77-b75bd9c822db" message="#[payload]"/>
+		<logger level="INFO" doc:name="Entry Logger" doc:id="d8b4cb77-0f57-4cb6-bb77-b75bd9c822db" message="Calling Order API with UUID: #[attributes.queryParams.uuid]"/>
 		<!-- <ee:transform doc:name="Coverting to String" doc:id="973f1238-8642-4a84-9f31-16f71c8abae7" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -33,7 +34,8 @@ attributes.queryParams.uuid!]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
 		<ee:dynamic-evaluate doc:name="Dynamic Evaluate" doc:id="b53c399b-d74b-495e-a03c-938fbd8b1559" expression="#[payload]"/>
-		<until-successful maxRetries="3" doc:name="Until Successful" doc:id="23cfab60-dacd-4200-a434-4cdf0054c429" >
+		<try doc:name="Try" doc:id="f61137cb-ac3a-4821-bfaa-b5d54b2a9e94" >
+			<until-successful maxRetries="2" doc:name="Until Successful" doc:id="23cfab60-dacd-4200-a434-4cdf0054c429" millisBetweenRetries="3000">
 			<http:request method="POST" doc:name="UT_graphql_Call" doc:id="f7e47a29-7d83-483b-a211-dc65d1897315" config-ref="HTTP_Request_configuration" path="${secure::UT.order.path}" sendCorrelationId="AUTO" target="UtResp">
 			<http:headers><![CDATA[#[output application/java
 ---
@@ -43,26 +45,54 @@ attributes.queryParams.uuid!]]></ee:set-variable>
 }]]]></http:headers>
 		</http:request>
 		</until-successful>
+			<error-handler>
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="32e796e3-0474-4a45-b68d-e6d47762d999" >
+					<cloudhub:create-notification doc:name="Clip Error Notification" doc:id="ab38cdf9-6ceb-42e8-9fbe-a0bde7ba41fa" config-ref="CloudHub_Config" priority="ERROR" domain="ut-clips-exp-api">
+						<cloudhub:message ><![CDATA[#["Error occured in application"]]]></cloudhub:message>
+					</cloudhub:create-notification>
+					<raise-error doc:name="Raise error" doc:id="5abc5008-0689-4ee1-8f73-85c06763e59f" type="CUSTOM:NOT_FOUND" description="#['No Records for the given UUID']"/>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="Event Tracking Request" doc:id="883ba5af-2fdd-4781-92f4-5106287cb88e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "event": '${secure::UT.event.name}',
+    "properties": {
+        "_id": vars.uniqueUUID,
+        "name": '${secure::UT.event.name}'
+    }
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 		<choice doc:name="Choice" doc:id="fdc226b9-3142-449b-a9d5-c5aaa71eb88b" >
 			<when expression="#[sizeOf(vars.UtResp) &gt; 0]">
-				<until-successful maxRetries="3" doc:name="Until Successful" doc:id="95c7551e-8d8c-4aff-b2f5-4e165d6ef67f" >
-					<http:request method="POST" doc:name="Event Tracking Request" doc:id="6ba232d4-6ff0-497c-96aa-168b38053ada" config-ref="HTTP_Request_configuration_Event" path="{secure::UT.event.path}" sendCorrelationId="AUTO">
+				<until-successful maxRetries="2" doc:name="Until Successful" doc:id="95c7551e-8d8c-4aff-b2f5-4e165d6ef67f" millisBetweenRetries="3000">
+					<try doc:name="Try" doc:id="53bd591d-6412-4112-8b84-ed4f253ae401" >
+						<logger level="INFO" doc:name="Start Event Tracking" doc:id="1716446e-2d1c-42f7-8f94-5218fc8fc035" message="Calling Event Tracking Request API"/>
+						<http:request method="POST" doc:name="Event Tracking Request" doc:id="6ba232d4-6ff0-497c-96aa-168b38053ada" config-ref="HTTP_Request_configuration_Event" path="${secure::UT.event.path}" sendCorrelationId="AUTO">
 			<http:headers><![CDATA[#[output application/java
 ---
 {
 	"Accept" : "application/json",
-	"Content-Type" : "application/x-www-form-urlencoded"
+	"Content-Type" : "application/json"
 }]]]></http:headers>
-			<http:query-params><![CDATA[#[output application/java
----
-{
-	"event" : vars.uniqueUUID,
-	"app_name" : "Value"
-}]]]></http:query-params>
 		</http:request>
+						<error-handler>
+							<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="1b8de9c8-7b7d-4f52-a174-6a4c4504400b" >
+								<logger level="ERROR" doc:name="Event Tracking Error" doc:id="c63cd459-c397-434a-bab0-ba834c95e04c" message="Not able to access Event Tracking API"/>
+							</on-error-continue>
+						</error-handler>
+					</try>
 				</until-successful>
 			</when>
 			<otherwise >
+				<cloudhub:create-notification doc:name="Event Error Notification" doc:id="8caffeb9-5992-4f9c-aa71-0989e91480d5" config-ref="CloudHub_Config" domain="ut-clips-exp-api" priority="ERROR">
+									<cloudhub:message><![CDATA[#["Error occured in Event Tracking"]]]></cloudhub:message>
+								</cloudhub:create-notification>
 				<raise-error doc:name="Raise error" doc:id="f1814848-b51b-4eeb-9093-4e3e76511eb3" type="CUSTOM:NOT_FOUND" description="#['No Records for the given UUID']"/>
 			</otherwise>
 		</choice>

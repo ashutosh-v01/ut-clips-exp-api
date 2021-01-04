@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:cloudhub="http://www.mulesoft.org/schema/mule/cloudhub" xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
-http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/cloudhub http://www.mulesoft.org/schema/mule/cloudhub/current/mule-cloudhub.xsd">
 	<apikit:config outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" doc:name="Router" doc:id="aed28a02-8477-48b0-9a58-982a200209c5" name="ut-clips-exp-api-config" api="api/ut-clips-exp-api.raml" />
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="baacc71e-7758-49d6-aab0-4a6e02444a1e" basePath="${secure::http.basepath}">
 		<http:listener-connection host="0.0.0.0" port="${secure::https.port}" protocol="HTTPS">
@@ -16,12 +17,15 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
 		</http:listener-connection>
 	</http:listener-config>
 	<global-property doc:name="Global Property" doc:id="00055834-4cfa-4988-b28e-b28d3596fdf1" name="env" value="dev" />
-	<global-property doc:name="Global Property" doc:id="2b6e5644-1865-4e38-b3b7-5f6ebefa2df1" name="ut.encryption.key" value="UtMulesoft-123456789" />
-	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="a74087da-7948-4fc8-9155-94e85d2803b0" file="properties/env-app-${env}.properties" key="{ut.encryption.key}"/>
+	<global-property doc:name="Global Property" doc:id="2b6e5644-1865-4e38-b3b7-5f6ebefa2df1" name="ut.encryption.key" value="1234" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="a74087da-7948-4fc8-9155-94e85d2803b0" file="properties/env-app-${env}.properties" key="${ut.encryption.key}"/>
 	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="78d8fd6c-2f6a-43bc-8035-446dceb58a7d" >
 		<http:request-connection host="${secure::UT.order.host}" />
 	</http:request-config>
 	<http:request-config name="HTTP_Request_configuration_Event" doc:name="HTTP Request configuration" doc:id="7fb71dd2-d970-4f68-9964-429bab8b4ea3" >
 		<http:request-connection protocol="HTTPS" host="${secure::UT.event.host}" />
 	</http:request-config>
+	<cloudhub:config name="CloudHub_Config" doc:name="CloudHub Config" doc:id="2c30ca70-b96d-408a-a940-c938b932f906" >
+		<cloudhub:connection username="${anypoint.userName}" password="${anypoint.password}" environment="${environment.id}" />
+	</cloudhub:config>
 </mule>
