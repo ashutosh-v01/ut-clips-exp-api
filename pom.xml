@@ -35,7 +35,7 @@
 						<muleVersion>${app.runtime}</muleVersion>
 						<username>${anypoint.userName}</username>
 						<password>${anypoint.password}</password>
-						<applicationName>${app.name}-avishwakarma</applicationName>
+						<applicationName>${app.name}</applicationName>
 						<environment>Sandbox</environment>
 						<workerType>MICRO</workerType>
 						<region>us-west-1</region>
