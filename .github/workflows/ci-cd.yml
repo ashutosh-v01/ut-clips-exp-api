@@ -57,4 +57,4 @@ jobs:
       run: |
         artifactName=$(ls *.jar | head -1)
         mvn mule:deploy -Dmule.artifact=$artifactName -Danypoint.userName="$USERNAME" -Danypoint.password="$PASSWORD"
-        -Denv=dev -Denv.userName=$USERNAME -Denv.password=$PASSWORD -Denv.ut.encryption.key=1234567812345678
+        -Denv.ut.encryption.key=1234567812345678
