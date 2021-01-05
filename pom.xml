@@ -41,6 +41,12 @@
 						<region>us-west-1</region>
 						<workers>2</workers>
 						<objectStoreV2>true</objectStoreV2>
+						<properties>
+						<env>${env}</env>
+						<anypoint.userName>${anypoint.userName}</anypoint.userName>
+						<anypoint.password>${anypoint.password}</anypoint.password>
+						<ut.encryption.key>${ut.encryption.key}</ut.encryption.key>
+						</properties>
 					</cloudHubDeployment>				
 				</configuration>
 			</plugin>
