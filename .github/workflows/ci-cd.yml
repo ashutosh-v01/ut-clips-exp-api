@@ -54,6 +54,7 @@ jobs:
       env:
         USERNAME: ${{ secrets.username }}
         PASSWORD: ${{ secrets.password }}
+        ENCYKEY: ${{ENCYKEY}}
       run: |
         artifactName=$(ls *.jar | head -1)
         mvn mule:deploy -Dmule.artifact=$artifactName -Danypoint.userName="$USERNAME" -Danypoint.password="$PASSWORD" -Denv=dev -Dut.encryption.key=1234567812345678
